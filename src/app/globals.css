@@ -1,26 +1,33 @@
+@import url("https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap");
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    background-color: #191e05;
+    color: #f0f8d4;
 }
+
+.primary{
+    color: #d0eb85;
+}
+
+.secondary {
+    color: #f0f8d4;
+}
+
+.cursive {
+    font-family: "Shadows Into Light", cursive;
+}
+
+.custom-styles .excalidraw {
+    --color-primary: #fcc6d9;
+    --color-primary-darker: #f783ac;
+    --color-primary-darkest: #e64980;
+    --color-primary-light: #f2a9c4;
+  }
+  
+  .custom-styles .excalidraw.theme--dark {
+    --color-primary: #d494aa;
+    --color-primary-darker: #d64c7e;
+    --color-primary-darkest: #e86e99;
+    --color-primary-light: #dcbec9;
+  }
