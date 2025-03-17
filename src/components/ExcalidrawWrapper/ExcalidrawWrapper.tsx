@@ -9,7 +9,7 @@ export const ExcalidrawWrapper: React.FC = () => {
 	useEffect(() => {
 		const updateDimensions = () => {
 		const width = window.innerWidth * 0.7;
-		const height = window.innerHeight * 0.9;
+		const height = window.innerHeight * 1;
 		setDimensions({ width, height });
 		};
 
