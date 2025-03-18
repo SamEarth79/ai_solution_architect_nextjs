@@ -2,88 +2,77 @@
 import { Excalidraw } from "@excalidraw/excalidraw";
 import { useEffect, useState } from "react";
 import "@excalidraw/excalidraw/index.css";
+import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
 
 export const ExcalidrawWrapper: React.FC = () => {
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const [initalElements, setInitialElements] = useState();
 	const [excalidrawAPI, setExcalidrawAPI] = useState();
-	const blocks = {
-		"blocks": [
-		  {
-			"block_id": 1,
-			"block_info_link": "https://developer.apple.com/ios/",
-			"block_name": "iOS Client",
-			"block_type": 0,
-			"connected_blocks": [7],
-			"layer": 2
-		  },
-		  {
-			"block_id": 2,
-			"block_info_link": "https://developer.android.com/",
-			"block_name": "Android Client",
-			"block_type": 0,
-			"connected_blocks": [7],
-			"layer": 2
-		  },
-		  {
-			"block_id": 3,
-			"block_info_link": "https://www.example.com/webclient",
-			"block_name": "Web Client",
-			"block_type": 1,
-			"connected_blocks": [7],
-			"layer": 2
-		  },
-		  {
-			"block_id": 4,
-			"block_info_link": "https://firebase.google.com/docs/auth",
-			"block_name": "Authentication Service",
-			"block_type": 6,
-			"connected_blocks": [1, 2, 3, 7],
+	const blocks = { "blocks": [
+		{
+		  "block_id": 1,
+		  "block_name": "Clients (Mobile/Web)",
+		  "block_type": 0,
+		  "layer": 0
+		},
+		{
+		  "block_id": 2,
+		  "block_name": "Load Balancer",
+		  "block_type": 7,
+		  "connected_blocks": [1],
+		  "layer": 1
+		},
+		{
+		  "block_id": 3,
+		  "block_name": "API Gateway",
+		  "block_type": 8,
+		  "connected_blocks": [2],
+		  "layer": 1
+		},
+		{
+		  "block_id": 4,
+		  "block_name": "Authentication Service",
+		  "block_type": 2,
+		  "connected_blocks": [3],
+		  "layer": 1
+		},
+		{
+		  "block_id": 5,
+		  "block_name": "Messaging Service",
+		  "block_type": 2,
+		  "connected_blocks": [3],
+		  "layer": 1
+		},
+		{
+		  "block_id": 6,
+		  "block_name": "User Database",
+		  "block_type": 3,
+		  "connected_blocks": [4],
+		  "layer": 2
+		},
+		{
+		  "block_id": 7,
+		  "block_name": "Message Database",
+		  "block_type": 4,
+		  "connected_blocks": [5],
+		  "layer": 2
+		},
+		{
+		  "block_id": 8,
+		  "block_name": "Message Queue",
+		  "block_type": 10,
+		  "connected_blocks": [5],
+		  "layer": 1
+		},
+		{
+		  "block_id": 9,
+		  "block_name": "Monitoring & Logging",
+		  "block_type": 9,
 			"layer": 3
-		  },
-		  {
-			"block_id": 5,
-			"block_info_link": "https://www.example.com/userservice",
-			"block_name": "User Service",
-			"block_type": 2,
-			"connected_blocks": [7, 6],
-			"layer": 3
-		  },
-		  {
-			"block_id": 6,
-			"block_info_link": "https://www.postgresql.org/",
-			"block_name": "User Database",
-			"block_type": 3,
-			"connected_blocks": [5],
-			"layer": 4
-		  },
-		  {
-			"block_id": 7,
-			"block_info_link": "https://www.example.com/messageservice",
-			"block_name": "Message Service",
-			"block_type": 2,
-			"connected_blocks": [1, 2, 3, 4, 5, 8, 9],
-			"layer": 3
-		  },
-		  {
-			"block_id": 8,
-			"block_info_link": "https://www.mongodb.com/",
-			"block_name": "Message Database",
-			"block_type": 4,
-			"connected_blocks": [7],
-			"layer": 4
-		  },
-		  {
-			"block_id": 9,
-			"block_info_link": "https://www.rabbitmq.com/",
-			"block_name": "Message Queue",
-			"block_type": 10,
-			"connected_blocks": [7],
-			"layer": 3
-		  }
-		]
-	  }
-	  
+		}
+	  ]
+	}
+	
 
 	useEffect(() => {
 		const updateDimensions = () => {
@@ -101,40 +90,120 @@ export const ExcalidrawWrapper: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		const processedElements = []
-		const layerWidths = [0, 0, 0, 0, 0];
-		const layerHeights = {
-			1: 0,
-			2: 120,
-			3: 240,
-			4: 360,
-			5: 480,
-		}
+		const processedElements = [];
+		const blockRectangles=[];
+		const layerRectangles = [];
+		const layerWidths = [0, 0, 0, 0];
+		const layerRectanglePadding = 20;
+		const blockHeight = 61.9765625;
+		const layerInfo = [
+			{
+				layer: 0,
+				name: "Presentation Layer (Frontend, Users)",
+				height: 100,
+				color: "orange"
+			},
+			{
+				layer: 1,
+				name: "Application Layer (Backend & Business Logic)",
+				height: 250,
+				color: "blue"
+			},
+			{
+				layer: 2,
+				name: "Data Layer (Storage & Databases)",
+				height: 400,
+				color: "green",
+			},
+			{
+				layer: 3,
+				name: "Infrastructure Layer (Deployment & Monitoring)",
+				height: 550,
+				color: "purple",
+			}
+		]
+		const layerNameOffset = 26;
 		blocks.blocks.forEach((block) => {
 			const layer = block.layer;
-			const x = layerWidths[layer-1];
-			const y = layerHeights[layer];
-			const processedElement = {
-				type: "rectangle",
-				id: `block-${block.block_id}`,
-				x: x,
-				y: y,
-				width: 106.47265625,
-				height: 61.9765625,
-				version: 141,
-				roundness: {
+			const x = layerWidths[layer];
+			const y = layerInfo[layer].height;
+			const width = block.block_name.length * 8 + 40;
+			const blockName = block.block_name;
+			const processedElement = [
+				{
+				  type: "rectangle",
+				  id: `${block.block_id}_block`,
+				  x: x,
+				  y: y,
+				  width: width,
+				  height: blockHeight,
+				  version: 141,
+				  backgroundColor: "transparent",
+				  fillStyle: "solid",
+				  roundness: {
 					type: 3,
+				  },
+				  label: {
+					text: blockName,
+					fontSize: 16,
+				  },
 				},
-			}
-			layerWidths[layer-1] += 120;
-			processedElements.push(processedElement);
-			processedElements.push(processedElementText);
+			  ];
+			layerWidths[layer] += width + 20;
+			blockRectangles.push(...processedElement);
 		})
-		console.log(processedElements);
-		setInitialElements(processedElements);
-		// excalidrawAPI?.updateScene({
-		// 	elements: processedElements,
+		layerWidths.forEach((width, index) => {
+			const layerRectangle =  [
+				{
+					type: "rectangle",
+					x: 0 - layerRectanglePadding,
+					y: layerInfo[index].height - layerRectanglePadding - layerNameOffset,
+					width: width + layerRectanglePadding * 2,
+					height: blockHeight + layerRectanglePadding * 2 + layerNameOffset,
+					strokeStyle: "dotted",
+					strokeColor: layerInfo[index].color,
+					label: {
+						text: layerInfo[index].name,
+						fontSize: 14,
+						textAlign: "left",
+						verticalAlign: "top",
+					}
+				}
+			]
+			layerRectangles.push(...layerRectangle);
+		})
+		const blockArrows = [];
+		// blocks.blocks.forEach((block) => {
+		// 	const connectedBlocks = block.connected_blocks;
+		// 	connectedBlocks?.forEach((connectedBlock) => {
+		// 		const startBlockInfo = blockRectangles.find((b) => b.id === `${block.block_id}_block`);
+		// 		const endBlockInfo = blockRectangles.find((b) => b.id === `${connectedBlock}_block`);
+		// 		const endBlock = blocks.blocks.find((b) => b.block_id === connectedBlock);
+		// 		const arrow = [
+		// 			{
+		// 			  type: "arrow",
+		// 			  x: startBlockInfo.x,
+		// 			  y: startBlockInfo.y,
+		// 			//   label: {
+		// 			// 	text: "HELLO WORLD!!",
+		// 			//   },
+		// 			  start: {
+		// 				id: `${block.block_id}_block`,
+		// 			  },
+		// 			  end: {
+		// 				id: `${endBlock?.block_id}_block`,
+		// 				x: endBlockInfo.x,
+		// 				y: endBlockInfo.y,
+		// 			  },
+		// 			},
+		// 		  ];
+		// 		blockArrows.push(...arrow);
+		// 	})
 		// })
+		console.log('====================================');
+		console.log([...layerRectangles, ...blockRectangles, ...blockArrows]);
+		console.log('====================================');
+		setInitialElements(convertToExcalidrawElements([...layerRectangles, ...blockRectangles, ...blockArrows]));
 	}, [excalidrawAPI]);
 
 
