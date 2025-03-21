@@ -1,4 +1,5 @@
 "use client";
+import { DialogBox, ErrorDialogBox } from "@/components/Dialog/Dialog";
 import { ExcalidrawWrapper } from "@/components/ExcalidrawWrapper/ExcalidrawWrapper";
 import { Prompt } from "@/components/Prompt/Prompt";
 import { SideBar } from "@/components/Sidebar/Sidebar";
@@ -14,6 +15,8 @@ export default function Home() {
                 <Prompt />
             </div>
             <SideBar />
+            <DialogBox />
+            <ErrorDialogBox />
         </div>
     );
 }

@@ -18,11 +18,10 @@ export const Prompt = () => {
         e.preventDefault();
         // @ts-expect-error dispatch is not a function
         dispatch(GetGeminiResponse(prompt))
-        .then((blocks) => {
-            console.log(blocks)
+        .then((blocks: unknown) => {
             dispatch(AIActions.updateHistory(blocks))
         })
-        .catch((e) => {
+        .catch((e: unknown) => {
             console.error(e)
         });
     }

@@ -1,7 +1,11 @@
-export const LogoIcon = () => (
+export const LogoIcon = ({size="small"}) => {
+
+    const px = size === "small" ? "50" : "140";
+
+    return (
     <svg
-        width="50"
-        height="50"
+        width={px}
+        height={px}
         viewBox="0 0 353 354"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +62,7 @@ export const LogoIcon = () => (
             </clipPath>
         </defs>
     </svg>
-);
+)};
 
 export const Header = () => {
     return (
